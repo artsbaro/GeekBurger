@@ -3,10 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace GeekBurger.Products.Controllers
 {
-    [Route("api/products")]
+    [Route("api/[controller]")]
+    [Produces("application/json")]
+    [ApiController]
     public class ProductsController : ControllerBase
     {
         public ProductsController()
@@ -41,16 +44,23 @@ namespace GeekBurger.Products.Controllers
 
         private IList<Product> Products = new List<Product>();
 
-        
         [HttpGet("{storename}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        [Consumes("application/json")]
         public IActionResult GetProductsByStoreName(string storeName)
         {
-            var productsByStore = Products.Where(product => product.StoreName == storeName).ToList();
+            try
+            {
+                var productsByStore = Products.Where(product => product.StoreName == storeName).ToList();
 
-            if (productsByStore.Count <= 0)
-                return NotFound();
+                if (productsByStore.Count <= 0)
+                    return NotFound();
 
-            return Ok(productsByStore);
+                return Ok(productsByStore);
+            }
+            catch { return StatusCode(500); }
         }
     }
 }

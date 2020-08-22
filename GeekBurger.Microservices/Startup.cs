@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 
 namespace GeekBurger.Products
 {
@@ -13,12 +12,15 @@ namespace GeekBurger.Products
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            var mvcCoreBuilder = services.AddMvcCore();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            mvcCoreBuilder
-                .AddFormatterMappings()
-                .AddJsonFormatters()
-                .AddCors();
+            services
+                .AddMvc(options =>
+                { options.OutputFormatters.Remove(new XmlDataContractSerializerOutputFormatter()); })
+                .AddJsonOptions(options => options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore)
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_0);
+
+            services.AddCors();
 
         }
 
