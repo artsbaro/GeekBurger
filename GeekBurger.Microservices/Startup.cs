@@ -21,6 +21,7 @@ namespace GeekBurger.Products
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_0);
 
             services.AddCors();
+            services.AddSwaggerGen();
 
         }
 
@@ -32,6 +33,14 @@ namespace GeekBurger.Products
             }
 
             app.UseMvc();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "GeekBurger API V1");
+                c.RoutePrefix = "";
+            });
+
+            app.UseSwagger();
 
             app.Run(async (context) =>
             {

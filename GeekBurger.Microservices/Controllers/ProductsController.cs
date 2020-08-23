@@ -44,23 +44,35 @@ namespace GeekBurger.Products.Controllers
 
         private IList<Product> Products = new List<Product>();
 
-        [HttpGet("{storename}")]
+        [HttpGet("{storeName}")]
         [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
         [Consumes("application/json")]
-        public IActionResult GetProductsByStoreName(string storeName)
+        public async Task<IActionResult> GetProductsByStoreName(string storeName)
         {
             try
             {
-                var productsByStore = Products.Where(product => product.StoreName == storeName).ToList();
+                if (string.IsNullOrWhiteSpace(storeName))
+                    return BadRequest(storeName);
 
-                if (productsByStore.Count <= 0)
+                var productsByStore = await Task.Run(() => Products.Where(product => storeName.ToUpper().Equals(product.StoreName.ToUpper())).ToList());
+
+                if (productsByStore.Count == 0)
                     return NotFound();
 
                 return Ok(productsByStore);
             }
             catch { return StatusCode(500); }
+        }
+
+        [HttpGet()]
+        [ProducesResponseType(200)]
+        [Consumes("application/json")]
+        public async Task<IActionResult> GetProducts()
+        {
+            return Ok(await Task.Run(() => Products));
         }
     }
 }
